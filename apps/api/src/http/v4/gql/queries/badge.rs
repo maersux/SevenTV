@@ -31,10 +31,14 @@ impl BadgeQuery {
 				ApiError::internal_server_error(ApiErrorCode::LoadError, "failed to query badges")
 			})?;
 
-		Ok(badges
+		let mut badges = badges
 			.into_iter()
 			.map(|b| Badge::from_db(b, &global.config.api.cdn_origin))
-			.collect())
+			.collect::<Vec<_>>();
+
+		badges.sort_by_key(|b| b.id);
+
+		Ok(badges)
 	}
 
 	#[tracing::instrument(skip_all, name = "BadgeQuery::badge")]

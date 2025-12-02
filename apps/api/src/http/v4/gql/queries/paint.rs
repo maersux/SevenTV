@@ -31,10 +31,14 @@ impl PaintQuery {
 				ApiError::internal_server_error(ApiErrorCode::LoadError, "failed to query paints")
 			})?;
 
-		Ok(paints
+		let mut paints = paints
 			.into_iter()
 			.map(|p| Paint::from_db(p, &global.config.api.cdn_origin))
-			.collect())
+			.collect::<Vec<_>>();
+
+		paints.sort_by_key(|p| p.id);
+
+		Ok(paints)
 	}
 
 	#[tracing::instrument(skip_all, name = "PaintQuery::paint")]
